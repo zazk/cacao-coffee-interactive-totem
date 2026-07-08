@@ -1,0 +1,168 @@
+---
+import Layout from '../layouts/Layout.astro';
+import '../styles/game.css';
+---
+
+<Layout>
+	<div id="app">
+		<!-- Pantalla de inicio -->
+		<section class="screen screen--start active" data-screen="start">
+			<div class="start-screen">
+				<!-- Cabecera de logos de socios -->
+				<div class="start-screen__partners">
+					<img
+						src="/images/logos-partners.png"
+						alt="Logos de Cooperación y Gobierno"
+						class="start-screen__partners-img"
+					/>
+				</div>
+
+				<img
+					class="start-screen__bg"
+					src="/images/home-background.png"
+					alt=""
+					aria-hidden="true"
+				/>
+				<div class="start-screen__overlay">
+					<!-- Logo PNG -->
+					<img
+						src="/images/logo.png"
+						alt="Café y Cacao del Perú para el Mundo"
+						class="logo-img"
+					/>
+
+					<!--
+					LOGO ANTERIOR (HTML/CSS) — comentado, no borrar por si acaso
+					<div class="logo-3d" aria-label="Café y Cacao del Perú para el Mundo">
+						<div class="logo-3d__green-card">
+							<div class="logo-3d__decor logo-3d__decor--coffee-left">
+								<svg viewBox="0 0 100 100" class="coffee-bean coffee-bean-1" width="36" height="36">
+									<g transform="rotate(-30 50 50)">
+										<ellipse cx="50" cy="50" rx="35" ry="24" fill="#5c3d2e" stroke="#251610" stroke-width="7"/>
+										<path d="M 18 50 Q 50 35 82 50" fill="none" stroke="#251610" stroke-width="6" stroke-linecap="round"/>
+										<ellipse cx="38" cy="40" rx="10" ry="4" fill="#8b5e3c" opacity="0.6"/>
+									</g>
+								</svg>
+								<svg viewBox="0 0 100 100" class="coffee-bean coffee-bean-2" width="32" height="32">
+									<g transform="rotate(20 50 50)">
+										<ellipse cx="50" cy="50" rx="35" ry="24" fill="#4d3227" stroke="#251610" stroke-width="7"/>
+										<path d="M 18 50 Q 50 35 82 50" fill="none" stroke="#251610" stroke-width="6" stroke-linecap="round"/>
+										<ellipse cx="38" cy="40" rx="10" ry="4" fill="#6f4e37" opacity="0.6"/>
+									</g>
+								</svg>
+							</div>
+							<span class="logo-3d__script-text">Café y Cacao</span>
+							<div class="logo-3d__decor logo-3d__decor--cacao-right">
+								<svg viewBox="0 0 100 100" class="cacao-pod" width="55" height="55">
+									<g transform="rotate(25 50 50)">
+										<path d="M 20 40 Q 5 25 15 5 L 25 25 Z" fill="#2d6a4f" stroke="#1b4d3e" stroke-width="4"/>
+										<path d="M 25 35 Q 5 50 10 70 L 30 50 Z" fill="#2d6a4f" stroke="#1b4d3e" stroke-width="4"/>
+										<path d="M 20 50 C 30 20, 70 20, 80 50 C 70 80, 30 80, 20 50 Z" fill="#e2ad43" stroke="#4a2e1d" stroke-width="7"/>
+										<path d="M 20 50 Q 50 35 80 50" fill="none" stroke="#4a2e1d" stroke-width="5" stroke-linecap="round"/>
+										<path d="M 20 50 Q 50 65 80 50" fill="none" stroke="#4a2e1d" stroke-width="5" stroke-linecap="round"/>
+										<path d="M 35 30 Q 50 34 65 30" fill="none" stroke="#f6c86c" stroke-width="3" stroke-linecap="round"/>
+										<path d="M 35 70 Q 50 66 65 70" fill="none" stroke="#f6c86c" stroke-width="3" stroke-linecap="round"/>
+									</g>
+								</svg>
+							</div>
+						</div>
+						<div class="logo-3d__del-badge">
+							<span>del</span>
+						</div>
+						<div class="logo-3d__red-group">
+							<div class="logo-3d__word logo-3d__word--peru">Perú</div>
+							<div class="logo-3d__word logo-3d__word--para-el">para el</div>
+							<div class="logo-3d__word logo-3d__word--mundo">Mundo</div>
+						</div>
+					</div>
+					-->
+
+					<button type="button" class="btn-inicia" id="btn-start">INICIA</button>
+				</div>
+			</div>
+		</section>
+
+		<!-- Mapa interactivo -->
+		<section class="screen" data-screen="map">
+			<div class="map-screen">
+
+				<div class="map-title" id="btn-test">
+					PONTE A PRUEBA
+				</div>
+
+				<div class="map-background">
+					<div class="map-points" id="map-points"></div>
+				</div>
+
+			</div>
+		</section>
+
+		<!-- Detalle del punto -->
+		<div class="detail-overlay" id="detail-overlay" role="dialog" aria-modal="true">
+			<div class="detail-card">
+				<span class="detail-card__section" id="detail-section"></span>
+				<p id="detail-text"></p>
+				<button type="button" id="btn-close-detail">
+					Entendido
+				</button>
+			</div>
+		</div>
+
+		<!-- Cuestionario -->
+		<section class="screen screen--quiz" data-screen="quiz">
+			<img
+				class="quiz-bg"
+				src="/images/home-background.png"
+				alt=""
+				aria-hidden="true"
+			/>
+
+			<div class="quiz-card">
+				<div class="quiz-timer" id="quiz-timer">00:20</div>
+
+				<div class="quiz-question-card">
+					<h2 id="quiz-question"></h2>
+				</div>
+
+				<div class="quiz-options" id="quiz-options"></div>
+			</div>
+		</section>
+
+		<!-- Registro -->
+		<section class="screen screen--register" data-screen="register">
+			<div class="register-card">
+				<h2>¡Casi terminamos!</h2>
+				<p>Déjanos tus datos para registrar tu participación.</p>
+				<form id="register-form">
+					<div class="form-group">
+						<label for="name">Nombre</label>
+						<input type="text" id="name" name="name" required autocomplete="name" />
+					</div>
+					<div class="form-group">
+						<label for="email">Correo electrónico</label>
+						<input type="email" id="email" name="email" required autocomplete="email" />
+					</div>
+					<button type="submit" class="btn-submit">Enviar</button>
+				</form>
+			</div>
+		</section>
+
+		<!-- Gracias -->
+		<section class="screen screen--thanks" data-screen="thanks">
+			<div class="thanks-card">
+				<div class="thanks-icon" aria-hidden="true">🌱</div>
+				<h2>¡Gracias por participar!</h2>
+				<p class="thanks-score" id="thanks-score"></p>
+				<div class="thanks-actions">
+					<button type="button" class="btn btn-primary" id="btn-restart">Jugar de nuevo</button>
+				</div>
+			</div>
+		</section>
+
+	</div>
+</Layout>
+
+<script>
+	import { initGame } from '../scripts/game';
+	initGame();
+</script>
