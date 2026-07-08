@@ -1,0 +1,26 @@
+---
+interface Props {
+	title?: string;
+}
+
+const { title = 'Juego Interactivo — Cacao y Café' } = Astro.props;
+---
+
+<!doctype html>
+<html lang="es">
+	<head>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+		<link rel="icon" href="/favicon.ico" />
+		<meta name="generator" content={Astro.generator} />
+		<meta name="description" content="Información interactiva sobre producción sostenible para cadenas libres de deforestación en cacao y café." />
+		<link rel="preconnect" href="https://fonts.googleapis.com" />
+		<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+		<link href="https://fonts.googleapis.com/css2?family=Lilita+One&family=Pacifico&family=Outfit:wght@400;600;800&display=swap" rel="stylesheet" />
+		<title>{title}</title>
+	</head>
+	<body>
+		<slot />
+	</body>
+</html>
