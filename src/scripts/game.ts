@@ -47,7 +47,7 @@ function renderMapPoints(): void {
 		const btn = document.createElement('button');
 
 		const visited = state.visitedPoints.has(point.id);
-		const enabled = point.id === nextPoint;
+		const enabled = visited || point.id === nextPoint;
 
 		btn.type = 'button';
 		btn.className = `map-point${visited ? ' visited' : ''}`;
@@ -67,15 +67,16 @@ function renderMapPoints(): void {
 
 function openPointDetail(id: number): void {
 	const point = mapPoints.find((p) => p.id === id);
-	if (!point || state.visitedPoints.has(id)) return;
+	if (!point) return;
 
 	$('detail-section').textContent = point.section;
 	$('detail-text').textContent = point.text;
 	$('detail-overlay').classList.add('open');
 
-	state.visitedPoints.add(id);
-
-	renderMapPoints();
+	if (!state.visitedPoints.has(id)) {
+		state.visitedPoints.add(id);
+		renderMapPoints();
+	}
 }
 
 function updateTestButton(): void {
