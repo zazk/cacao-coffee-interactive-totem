@@ -1,6 +1,6 @@
 import { mapPoints } from '../data/mapPoints';
 import { questions } from '../data/questions';
-import { exportSessionsAsCsv, saveSession, type GameSession } from '../lib/storage';
+import { submitScore } from '../lib/api';
 
 type Screen = 'start' | 'map' | 'quiz' | 'register' | 'thanks';
 
@@ -13,6 +13,7 @@ interface GameState {
 	answers: Record<number, string>;
 	timerId: ReturnType<typeof setInterval> | null;
 	timeLeft: number;
+	gameStartedAt: number | null; // ms timestamp when the quiz begins
 }
 
 const state: GameState = {
@@ -22,6 +23,7 @@ const state: GameState = {
 	answers: {},
 	timerId: null,
 	timeLeft: QUIZ_TIME_SECONDS,
+	gameStartedAt: null,
 };
 
 function $(id: string): HTMLElement {
@@ -81,22 +83,19 @@ function openPointDetail(id: number): void {
 
 function updateTestButton(): void {
 	const btn = $('btn-test');
-
 	const enabled = state.visitedPoints.size === mapPoints.length;
-
 	btn.classList.toggle('enabled', enabled);
 }
 
 function closePointDetail(): void {
 	$('detail-overlay').classList.remove('open');
-
 	updateTestButton();
 }
-
 
 function startQuiz(): void {
 	state.currentQuestion = 0;
 	state.answers = {};
+	state.gameStartedAt = Date.now();
 	showScreen('quiz');
 	renderQuestion();
 }
@@ -176,8 +175,6 @@ function selectAnswer(optionId: string | null): void {
 			state.currentQuestion += 1;
 			renderQuestion();
 		} else {
-			console.log('Mostrando registro');
-
 			showScreen('register');
 		}
 	}, 1200);
@@ -195,18 +192,15 @@ function handleRegisterSubmit(event: Event): void {
 		return acc + (state.answers[q.id] === q.correctId ? 1 : 0);
 	}, 0);
 
-	const session: GameSession = {
-		id: crypto.randomUUID(),
-		timestamp: new Date().toISOString(),
-		name,
-		email,
-		answers: { ...state.answers },
-		visitedPoints: Array.from(state.visitedPoints).sort((a, b) => a - b),
-		score,
-	};
+	const timeMs = state.gameStartedAt ? Date.now() - state.gameStartedAt : 0;
+	const userId = crypto.randomUUID();
 
-	saveSession(session);
-	$('thanks-score').textContent = `Obtuviste ${score} de ${questions.length} respuestas correctas.`;
+	// Send score to the backend — fire and forget so the UI never waits
+	submitScore({ userId, email, name, score, timeMs }).catch((err) => {
+		console.warn('[api] Failed to save score:', err);
+	});
+
+	$('thanks-score').textContent = `You scored ${score} out of ${questions.length} correct answers.`;
 	showScreen('thanks');
 	form.reset();
 }
@@ -216,6 +210,7 @@ function resetGame(): void {
 	state.visitedPoints = new Set();
 	state.currentQuestion = 0;
 	state.answers = {};
+	state.gameStartedAt = null;
 	closePointDetail();
 	renderMapPoints();
 	showScreen('start');
@@ -243,6 +238,4 @@ export function initGame(): void {
 
 	$('register-form').addEventListener('submit', handleRegisterSubmit);
 	$('btn-restart').addEventListener('click', resetGame);
-
 }
-
