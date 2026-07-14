@@ -71,7 +71,10 @@ function openPointDetail(id: number): void {
 	const point = mapPoints.find((p) => p.id === id);
 	if (!point) return;
 
-	$('detail-section').textContent = point.section;
+	const detailCard = $('detail-card');
+
+	detailCard.style.backgroundImage = `url("${point.background}")`;
+
 	$('detail-text').textContent = point.text;
 	$('detail-overlay').classList.add('open');
 
@@ -89,6 +92,9 @@ function updateTestButton(): void {
 
 function closePointDetail(): void {
 	$('detail-overlay').classList.remove('open');
+
+	$('detail-card').style.backgroundImage = '';
+
 	updateTestButton();
 }
 

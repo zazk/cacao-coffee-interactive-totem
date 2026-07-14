@@ -1,120 +1,23 @@
 ---
 import Layout from '../layouts/Layout.astro';
 import '../styles/game.css';
+
+import StartScreen from '../components/StartScreen.astro';
+import MapScreen from '../components/MapScreen.astro';
+import DetailOverlay from '../components/DetailOverlay.astro';
+import QuizScreen from '../components/QuizScreen.astro';
+import RegisterScreen from '../components/RegisterScreen.astro';
+import ThanksScreen from '../components/ThanksScreen.astro';
 ---
 
 <Layout>
 	<div id="app">
-		<!-- Pantalla de inicio -->
-		<section class="screen screen--start active" data-screen="start">
-			<div class="start-screen">
-				<!-- Cabecera de logos de socios -->
-				<div class="start-screen__partners">
-					<img
-						src="/images/logos-partners.png"
-						alt="Logos de Cooperación y Gobierno"
-						class="start-screen__partners-img"
-					/>
-				</div>
-
-				<img
-					class="start-screen__bg"
-					src="/images/home-background.png"
-					alt=""
-					aria-hidden="true"
-				/>
-				<div class="start-screen__overlay">
-					<!-- Logo PNG -->
-					<img
-						src="/images/logo.png"
-						alt="Café y Cacao del Perú para el Mundo"
-						class="logo-img"
-					/>
-
-
-
-					<button type="button" class="btn-inicia" id="btn-start">INICIA</button>
-				</div>
-			</div>
-		</section>
-
-		<!-- Mapa interactivo -->
-		<section class="screen" data-screen="map">
-			<div class="map-screen">
-
-				<div class="map-title" id="btn-test">
-					PONTE A PRUEBA
-				</div>
-
-				<div class="map-background">
-					<div class="map-points" id="map-points"></div>
-				</div>
-
-			</div>
-		</section>
-
-		<!-- Detalle del punto -->
-		<div class="detail-overlay" id="detail-overlay" role="dialog" aria-modal="true">
-			<div class="detail-card">
-				<span class="detail-card__section" id="detail-section"></span>
-				<p id="detail-text"></p>
-				<button type="button" id="btn-close-detail">
-					Entendido
-				</button>
-			</div>
-		</div>
-
-		<!-- Cuestionario -->
-		<section class="screen screen--quiz" data-screen="quiz">
-			<img
-				class="quiz-bg"
-				src="/images/home-background.png"
-				alt=""
-				aria-hidden="true"
-			/>
-
-			<div class="quiz-card">
-				<div class="quiz-timer" id="quiz-timer">00:20</div>
-
-				<div class="quiz-question-card">
-					<h2 id="quiz-question"></h2>
-				</div>
-
-				<div class="quiz-options" id="quiz-options"></div>
-			</div>
-		</section>
-
-		<!-- Registro -->
-		<section class="screen screen--register" data-screen="register">
-			<div class="register-card">
-				<h2>¡Casi terminamos!</h2>
-				<p>Déjanos tus datos para registrar tu participación.</p>
-				<form id="register-form">
-					<div class="form-group">
-						<label for="name">Nombre</label>
-						<input type="text" id="name" name="name" required autocomplete="name" />
-					</div>
-					<div class="form-group">
-						<label for="email">Correo electrónico</label>
-						<input type="email" id="email" name="email" required autocomplete="email" />
-					</div>
-					<button type="submit" class="btn-submit">Enviar</button>
-				</form>
-			</div>
-		</section>
-
-		<!-- Gracias -->
-		<section class="screen screen--thanks" data-screen="thanks">
-			<div class="thanks-card">
-				<div class="thanks-icon" aria-hidden="true">🌱</div>
-				<h2>¡Gracias por participar!</h2>
-				<p class="thanks-score" id="thanks-score"></p>
-				<div class="thanks-actions">
-					<button type="button" class="btn btn-primary" id="btn-restart">Jugar de nuevo</button>
-				</div>
-			</div>
-		</section>
-
+		<StartScreen />
+		<MapScreen />
+		<DetailOverlay />
+		<QuizScreen />
+		<RegisterScreen />
+		<ThanksScreen />
 	</div>
 </Layout>
 
