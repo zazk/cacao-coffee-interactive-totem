@@ -2,13 +2,31 @@
 ---
 
 <!-- Gracias -->
-<section class="screen screen--thanks" data-screen="thanks">
-	<div class="thanks-card">
-		<div class="thanks-icon" aria-hidden="true">🌱</div>
-		<h2>¡Gracias por participar!</h2>
-		<p class="thanks-score" id="thanks-score"></p>
-		<div class="thanks-actions">
-			<button type="button" class="btn btn-primary" id="btn-restart">Jugar de nuevo</button>
+<section class="screen screen--thanks" data-screen="thanks" id="thanks-screen">
+	<div class="thanks-screen">
+		<div class="thanks-phase" id="thanks-form-panel">
+			<div class="thanks-panel thanks-panel--form">
+				<form id="register-form" class="thanks-form">
+					<div class="form-group">
+						<label for="name">Nombres:</label>
+						<input type="text" id="name" name="name" required autocomplete="name" />
+					</div>
+					<div class="form-group">
+						<label for="email">Correo electrónico:</label>
+						<input type="email" id="email" name="email" required autocomplete="email" />
+					</div>
+				</form>
+			</div>
+			<button type="submit" form="register-form" class="thanks-btn" id="btn-submit">
+				Enviar
+			</button>
+		</div>
+
+		<div class="thanks-phase" id="thanks-results-panel" hidden>
+			<div class="thanks-panel thanks-panel--results">
+				<p class="thanks-score" id="thanks-score"></p>
+			</div>
+			<button type="button" class="thanks-btn" id="btn-play-again">Volver a jugar</button>
 		</div>
 	</div>
 </section>

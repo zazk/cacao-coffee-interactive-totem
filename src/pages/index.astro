@@ -6,17 +6,19 @@ import StartScreen from '../components/StartScreen.astro';
 import MapScreen from '../components/MapScreen.astro';
 import DetailOverlay from '../components/DetailOverlay.astro';
 import QuizScreen from '../components/QuizScreen.astro';
-import RegisterScreen from '../components/RegisterScreen.astro';
 import ThanksScreen from '../components/ThanksScreen.astro';
 ---
 
 <Layout>
+	<audio id="bgm" class="bgm" loop preload="auto" autoplay>
+		<source src="/audio/cancion-eudr-pista.mp3" type="audio/mpeg" />
+	</audio>
+
 	<div id="app">
 		<StartScreen />
 		<MapScreen />
 		<DetailOverlay />
 		<QuizScreen />
-		<RegisterScreen />
 		<ThanksScreen />
 	</div>
 </Layout>

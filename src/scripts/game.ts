@@ -2,7 +2,7 @@ import { mapPoints } from '../data/mapPoints';
 import { questions } from '../data/questions';
 import { submitScore } from '../lib/api';
 
-type Screen = 'start' | 'map' | 'quiz' | 'register' | 'thanks';
+type Screen = 'start' | 'map' | 'quiz' | 'thanks';
 
 const QUIZ_TIME_SECONDS = 20;
 
@@ -52,7 +52,7 @@ function renderMapPoints(): void {
 		const enabled = visited || point.id === nextPoint;
 
 		btn.type = 'button';
-		btn.className = `map-point${visited ? ' visited' : ''}`;
+		btn.className = ['map-point', visited && 'visited', !enabled && 'locked'].filter(Boolean).join(' ');
 
 		btn.style.left = `${point.x}%`;
 		btn.style.top = `${point.y}%`;
@@ -67,15 +67,22 @@ function renderMapPoints(): void {
 	});
 }
 
+const LONG_DETAIL_TEXT_LENGTH = 140;
+
 function openPointDetail(id: number): void {
 	const point = mapPoints.find((p) => p.id === id);
 	if (!point) return;
 
 	const detailCard = $('detail-card');
+	const detailContent = document.querySelector('.detail-card__content');
 
 	detailCard.style.backgroundImage = `url("${point.background}")`;
 
 	$('detail-text').textContent = point.text;
+	detailContent?.classList.toggle(
+		'detail-card__content--long',
+		point.text.length >= LONG_DETAIL_TEXT_LENGTH,
+	);
 	$('detail-overlay').classList.add('open');
 
 	if (!state.visitedPoints.has(id)) {
@@ -84,18 +91,11 @@ function openPointDetail(id: number): void {
 	}
 }
 
-function updateTestButton(): void {
-	const btn = $('btn-test');
-	const enabled = state.visitedPoints.size === mapPoints.length;
-	btn.classList.toggle('enabled', enabled);
-}
-
 function closePointDetail(): void {
 	$('detail-overlay').classList.remove('open');
 
 	$('detail-card').style.backgroundImage = '';
-
-	updateTestButton();
+	document.querySelector('.detail-card__content')?.classList.remove('detail-card__content--long');
 }
 
 function startQuiz(): void {
@@ -181,9 +181,40 @@ function selectAnswer(optionId: string | null): void {
 			state.currentQuestion += 1;
 			renderQuestion();
 		} else {
-			showScreen('register');
+			showThanksForm();
 		}
 	}, 1200);
+}
+
+function getScore(): number {
+	return questions.reduce((acc, q) => {
+		return acc + (state.answers[q.id] === q.correctId ? 1 : 0);
+	}, 0);
+}
+
+function showThanksForm(): void {
+	($('register-form') as HTMLFormElement).reset();
+	$('thanks-form-panel').hidden = false;
+	$('thanks-results-panel').hidden = true;
+	showScreen('thanks');
+}
+
+function showThanksResults(score: number): void {
+	$('thanks-score').textContent = `Obtuviste ${score} de ${questions.length} respuestas correctas.`;
+	$('thanks-form-panel').hidden = true;
+	$('thanks-results-panel').hidden = false;
+}
+
+function goToThanks(name: string, email: string): void {
+	const score = getScore();
+	const timeMs = state.gameStartedAt ? Date.now() - state.gameStartedAt : 0;
+	const userId = crypto.randomUUID();
+
+	submitScore({ userId, email, name, score, timeMs }).catch((err) => {
+		console.warn('[api] Failed to save score:', err);
+	});
+
+	showThanksResults(score);
 }
 
 function handleRegisterSubmit(event: Event): void {
@@ -194,21 +225,7 @@ function handleRegisterSubmit(event: Event): void {
 
 	if (!name || !email) return;
 
-	const score = questions.reduce((acc, q) => {
-		return acc + (state.answers[q.id] === q.correctId ? 1 : 0);
-	}, 0);
-
-	const timeMs = state.gameStartedAt ? Date.now() - state.gameStartedAt : 0;
-	const userId = crypto.randomUUID();
-
-	// Send score to the backend — fire and forget so the UI never waits
-	submitScore({ userId, email, name, score, timeMs }).catch((err) => {
-		console.warn('[api] Failed to save score:', err);
-	});
-
-	$('thanks-score').textContent = `You scored ${score} out of ${questions.length} correct answers.`;
-	showScreen('thanks');
-	form.reset();
+	goToThanks(name, email);
 }
 
 function resetGame(): void {
@@ -222,18 +239,47 @@ function resetGame(): void {
 	showScreen('start');
 }
 
+function preloadImages() {
+	mapPoints.forEach(point => {
+		const img = new Image();
+		img.src = point.background;
+	});
+}
+
+function initBackgroundMusic(): void {
+	const bgm = document.getElementById('bgm') as HTMLAudioElement | null;
+	if (!bgm) return;
+
+	bgm.volume = 0.1;
+
+	const startMusic = (): void => {
+		if (bgm.paused) {
+			void bgm.play().catch(() => {
+				// Algunos navegadores bloquean autoplay sin interacción previa.
+			});
+		}
+	};
+
+	// Intentar reproducir apenas carga la página (kiosk / políticas permisivas).
+	startMusic();
+	bgm.addEventListener('canplay', startMusic, { once: true });
+
+	// Respaldo si el navegador exige un gesto del usuario.
+	document.addEventListener('pointerdown', startMusic, { once: true });
+	document.addEventListener('keydown', startMusic, { once: true });
+}
+
 export function initGame(): void {
+	preloadImages();
+	initBackgroundMusic();
 	renderMapPoints();
-	updateTestButton();
 
 	$('btn-start').addEventListener('click', () => {
 		showScreen('map');
 	});
 
 	$('btn-test').addEventListener('click', () => {
-		if (state.visitedPoints.size === mapPoints.length) {
-			startQuiz();
-		}
+		startQuiz();
 	});
 
 	$('btn-close-detail').addEventListener('click', closePointDetail);
@@ -243,5 +289,5 @@ export function initGame(): void {
 	});
 
 	$('register-form').addEventListener('submit', handleRegisterSubmit);
-	$('btn-restart').addEventListener('click', resetGame);
+	$('btn-play-again').addEventListener('click', resetGame);
 }
