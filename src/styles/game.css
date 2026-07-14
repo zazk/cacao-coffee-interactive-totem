@@ -208,6 +208,7 @@ body {
 
 .map-title {
 	position: absolute;
+	cursor: pointer;
 	right: 5%;
 	z-index: 20;
 	padding: 6px;
@@ -229,7 +230,7 @@ body {
 	position: absolute;
 	inset: 0;
 
-	background-image: url('/images/camino-mapa.png');
+	background-image: url('../assets/images/camino-mapa.png');
 	background-size: cover;
 	background-position: center;
 	background-repeat: no-repeat;
