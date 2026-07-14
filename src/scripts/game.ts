@@ -1,6 +1,7 @@
 import { mapPoints } from '../data/mapPoints';
 import { questions } from '../data/questions';
 import { submitScore } from '../lib/api';
+import { preloadGameImages, preloadScreenImages } from '../lib/preload';
 
 type Screen = 'start' | 'map' | 'quiz' | 'thanks';
 
@@ -99,6 +100,7 @@ function closePointDetail(): void {
 }
 
 function startQuiz(): void {
+	preloadScreenImages('quiz');
 	state.currentQuestion = 0;
 	state.answers = {};
 	state.gameStartedAt = Date.now();
@@ -193,6 +195,7 @@ function getScore(): number {
 }
 
 function showThanksForm(): void {
+	preloadScreenImages('thanks');
 	($('register-form') as HTMLFormElement).reset();
 	$('thanks-form-panel').hidden = false;
 	$('thanks-results-panel').hidden = true;
@@ -239,13 +242,6 @@ function resetGame(): void {
 	showScreen('start');
 }
 
-function preloadImages() {
-	mapPoints.forEach(point => {
-		const img = new Image();
-		img.src = point.background;
-	});
-}
-
 function initBackgroundMusic(): void {
 	const bgm = document.getElementById('bgm') as HTMLAudioElement | null;
 	if (!bgm) return;
@@ -270,11 +266,12 @@ function initBackgroundMusic(): void {
 }
 
 export function initGame(): void {
-	preloadImages();
+	preloadGameImages();
 	initBackgroundMusic();
 	renderMapPoints();
 
 	$('btn-start').addEventListener('click', () => {
+		preloadScreenImages('map');
 		showScreen('map');
 	});
 

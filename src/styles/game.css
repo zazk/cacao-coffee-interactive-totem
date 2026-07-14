@@ -674,7 +674,7 @@ body {
 .thanks-score {
   width: 100%;
   margin: 0;
-  padding: 0 0.5rem;
+  padding: 0 1rem;
   box-sizing: border-box;
   font-family: "Lilita One", cursive;
   font-size: clamp(1.5rem, 5vw, 2.75rem);
@@ -919,6 +919,7 @@ body {
   .thanks-score {
     font-size: 4rem;
     line-height: 1.15;
+	padding: 0 0.5rem;
   }
 
   .thanks-btn {
@@ -1131,7 +1132,7 @@ body {
   }
 
   .thanks-panel {
-    width: min(70%, 300px);
+    width: min(70%, 200px);
   }
 
   .thanks-panel--form {
