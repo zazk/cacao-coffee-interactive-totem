@@ -22,6 +22,11 @@
   --dark-walnut: #6b2f07;
   --vanilla-custard: #faebb3;
   --evergreen: #1b3f2d;
+  --sunflower-gold: #fdb128;
+  --ochre: #d06e01;
+  --rust-brown: #933100;
+  --autumn-leaf: #df6600;
+  --bronze: #c87f01;
 }
 
 /* ==========================================================================
@@ -30,6 +35,54 @@
 
 .bgm {
   display: none;
+}
+
+.music-toggle {
+  position: absolute;
+  right: 1rem;
+  bottom: 1rem;
+  z-index: 200;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+  padding: 0;
+  border: 2px solid rgba(255, 255, 255, 0.85);
+  border-radius: 50%;
+  background: rgba(27, 63, 45, 0.78);
+  color: #fff;
+  cursor: pointer;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25);
+  transition:
+    background 0.2s,
+    transform 0.15s;
+}
+
+.music-toggle:hover {
+  background: rgba(27, 63, 45, 0.92);
+}
+
+.music-toggle:active {
+  transform: scale(0.94);
+}
+
+.music-toggle__icon {
+  width: 1.55rem;
+  height: 1.55rem;
+  fill: currentColor;
+}
+
+.music-toggle__icon--off {
+  display: none;
+}
+
+.music-toggle--muted .music-toggle__icon--on {
+  display: none;
+}
+
+.music-toggle--muted .music-toggle__icon--off {
+  display: block;
 }
 
 *,
@@ -173,39 +226,66 @@ body {
   animation: fadeIn 0.5s ease;
 }
 
+.start-screen__safe-logo {
+  position: absolute;
+  bottom: 5vh;
+  left: calc(50% + clamp(6rem, 21vw, 11rem));
+  display: block;
+  width: auto;
+  height: clamp(5.5rem, 18vw, 8.5rem);
+}
+
+.btn-inicia,
+.thanks-btn {
+  position: relative;
+  overflow: hidden;
+  appearance: none;
+  -webkit-appearance: none;
+  border: 3px solid var(--autumn-leaf);
+  border-radius: 999px;
+  font-family: "Lilita One", cursive;
+  color: #fff;
+  cursor: pointer;
+  background: linear-gradient(
+    180deg,
+    var(--sunflower-gold) 0%,
+    var(--sunflower-gold) 88%,
+    var(--autumn-leaf) 100%
+  );
+  box-shadow:
+    inset 0 2px 0 rgba(255, 255, 255, 0.28),
+    0 6px 0 var(--rust-brown),
+    0 12px 24px rgba(0, 0, 0, 0.35);
+  text-shadow:
+    0 2px 0 var(--rust-brown),
+    0 3px 6px rgba(0, 0, 0, 0.3);
+  transition:
+    transform 0.1s ease,
+    box-shadow 0.1s ease;
+}
+
 .btn-inicia {
   position: absolute;
   bottom: 6vh;
   left: 50%;
   transform: translateX(-50%);
   width: max-content;
-  padding: 12px 24px;
-  border: 5px solid #4a2e1d;
-  border-radius: 50px;
-  font-family: "Lilita One", cursive;
+  padding: 12px 36px;
   font-size: clamp(2rem, 7.5vw, 2.75rem);
-  color: white;
-  cursor: pointer;
-  background: linear-gradient(180deg, #fcd34d 0%, #f59e0b 50%, #d97706 100%);
-  box-shadow:
-    0 5px 0 #4a2e1d,
-    0 18px 30px rgba(0, 0, 0, 0.45);
-  text-shadow:
-    -2px -2px 0 #4a2e1d,
-    2px -2px 0 #4a2e1d,
-    -2px 2px 0 #4a2e1d,
-    2px 2px 0 #4a2e1d;
-  transition:
-    transform 0.1s ease,
-    box-shadow 0.1s ease;
 }
 
-.btn-inicia:hover {
+.btn-inicia:hover,
+.thanks-btn:hover {
   transform: translateX(-50%) translateY(-2px);
 }
 
-.btn-inicia:active {
-  transform: translateX(-50%) translateY(8px);
+.btn-inicia:active,
+.thanks-btn:active {
+  transform: translateX(-50%) translateY(6px);
+  box-shadow:
+    inset 0 2px 0 rgba(255, 255, 255, 0.2),
+    0 2px 0 var(--rust-brown),
+    0 6px 14px rgba(0, 0, 0, 0.3);
 }
 
 /* ==========================================================================
@@ -475,14 +555,13 @@ body {
   justify-content: center;
   width: 100%;
   height: clamp(4.5rem, 14vw, 7.75rem);
-  background: var(--evergreen);
 }
 
 .quiz-screen__safe-img {
   display: block;
   width: 100%;
   height: 100%;
-  object-fit: contain;
+  object-fit: cover;
   object-position: center;
 }
 
@@ -692,33 +771,10 @@ body {
   left: 50%;
   z-index: 2;
   transform: translateX(-50%);
-  width: min(52%, 340px);
-  padding: 0.85rem 1.75rem;
-  border: 4px solid #4a2e1d;
-  border-radius: 28px;
-  font-family: "Lilita One", cursive;
-  font-size: clamp(1.15rem, 4vw, 1.75rem);
-  color: #fff;
-  cursor: pointer;
-  background: linear-gradient(180deg, #fcd34d 0%, #f59e0b 50%, #d97706 100%);
-  box-shadow:
-    0 6px 0 #4a2e1d,
-    0 12px 20px rgba(0, 0, 0, 0.35);
-  text-shadow:
-    -1px -1px 0 #4a2e1d,
-    1px -1px 0 #4a2e1d,
-    -1px 1px 0 #4a2e1d,
-    1px 1px 0 #4a2e1d;
-  transition: 0.15s;
-}
-
-.thanks-btn:hover {
-  transform: translateX(-50%) translateY(-2px);
-}
-
-.thanks-btn:active {
-  transform: translateX(-50%) translateY(5px);
-  box-shadow: 0 2px 0 #4a2e1d;
+  width: max-content;
+  max-width: 90%;
+  padding: 12px 36px;
+  font-size: clamp(2rem, 7.5vw, 2.75rem);
 }
 
 /* ==========================================================================
@@ -767,9 +823,31 @@ body {
     max-width: min(78vw, 840px);
   }
 
-  .btn-inicia {
+  .music-toggle {
+    right: 1.5rem;
+    bottom: 1.5rem;
+    width: 4.5rem;
+    height: 4.5rem;
+  }
+
+  .music-toggle__icon {
+    width: 2.25rem;
+    height: 2.25rem;
+  }
+
+  .btn-inicia,
+  .thanks-btn {
     font-size: clamp(2.5rem, 7.5vw, 5.5rem);
     padding: 0.75rem 2rem;
+  }
+
+  .thanks-btn {
+    top: 82%;
+  }
+
+  .start-screen__safe-logo {
+    height: clamp(8rem, 16vw, 12rem);
+    left: calc(54% + clamp(10rem, 25vw, 17rem));
   }
 
   .map-title {
@@ -924,10 +1002,6 @@ body {
 
   .thanks-btn {
     top: 82%;
-    width: min(56%, 520px);
-    font-size: 2.5rem;
-    padding: 1.1rem 2.5rem;
-    border-width: 5px;
   }
 }
 
@@ -992,6 +1066,11 @@ body {
     width: 95vw;
   }
 
+  .detail-card::after {
+    border: 3px solid #fff;
+    box-shadow: inset 0 0 0 2px var(--old-gold);
+  }
+
   .detail-card__content-outer {
     top: 5%;
     left: 5%;
@@ -1033,18 +1112,44 @@ body {
     margin: 1rem auto;
   }
 
-  .btn-inicia {
+  .btn-inicia,
+  .thanks-btn {
     padding: 8px 18px;
     font-size: 1.8rem;
     transform: translateX(-50%);
   }
 
-  .btn-inicia:hover {
+  .btn-inicia:hover,
+  .thanks-btn:hover {
     transform: translateX(-50%) translateY(-2px);
   }
 
-  .btn-inicia:active {
-    transform: translateX(-50%) translateY(8px);
+  .btn-inicia:active,
+  .thanks-btn:active {
+    transform: translateX(-50%) translateY(6px);
+  }
+
+  .thanks-btn {
+    top: 82%;
+  }
+
+  .start-screen__safe-logo {
+    bottom: 6vh;
+    height: 4rem;
+    left: calc(55% + 5rem);
+  }
+
+  .music-toggle {
+    right: 0.65rem;
+    bottom: 0.65rem;
+    width: 1.65rem;
+    height: 1.65rem;
+    border-width: 1.5px;
+  }
+
+  .music-toggle__icon {
+    width: 1.1rem;
+    height: 1.1rem;
   }
 
   .map-title {
@@ -1167,11 +1272,6 @@ body {
 
   .thanks-btn {
     top: 82%;
-    width: min(72%, 280px);
-    font-size: clamp(1.1rem, 4.5vw, 1.35rem);
-    padding: clamp(0.7rem, 3vw, 0.85rem) clamp(1.1rem, 4.5vw, 1.4rem);
-    border-width: 4px;
-    border-radius: 24px;
   }
 }
 
@@ -1209,7 +1309,8 @@ body {
     max-width: 260px;
   }
 
-  .btn-inicia {
+  .btn-inicia,
+  .thanks-btn {
     padding: 8px 18px;
     font-size: 1.8rem;
   }

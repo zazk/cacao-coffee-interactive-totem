@@ -1,11 +1,9 @@
 import { mapPoints } from '../data/mapPoints';
 import { questions } from '../data/questions';
 import { submitScore } from '../lib/api';
-import { preloadGameImages, preloadScreenImages } from '../lib/preload';
+import { preloadGameImages } from '../lib/preload';
 
 type Screen = 'start' | 'map' | 'quiz' | 'thanks';
-
-const QUIZ_TIME_SECONDS = 20;
 
 interface GameState {
 	screen: Screen;
@@ -13,7 +11,7 @@ interface GameState {
 	currentQuestion: number;
 	answers: Record<number, string>;
 	timerId: ReturnType<typeof setInterval> | null;
-	timeLeft: number;
+	timeElapsed: number;
 	gameStartedAt: number | null; // ms timestamp when the quiz begins
 }
 
@@ -23,7 +21,7 @@ const state: GameState = {
 	currentQuestion: 0,
 	answers: {},
 	timerId: null,
-	timeLeft: QUIZ_TIME_SECONDS,
+	timeElapsed: 0,
 	gameStartedAt: null,
 };
 
@@ -100,7 +98,6 @@ function closePointDetail(): void {
 }
 
 function startQuiz(): void {
-	preloadScreenImages('quiz');
 	state.currentQuestion = 0;
 	state.answers = {};
 	state.gameStartedAt = Date.now();
@@ -115,25 +112,34 @@ function clearTimer(): void {
 	}
 }
 
+function shuffleOptions<T>(items: readonly T[]): T[] {
+	const copy = [...items];
+	for (let i = copy.length - 1; i > 0; i -= 1) {
+		const j = Math.floor(Math.random() * (i + 1));
+		[copy[i], copy[j]] = [copy[j], copy[i]];
+	}
+	return copy;
+}
+
 function startTimer(): void {
 	clearTimer();
-	state.timeLeft = QUIZ_TIME_SECONDS;
+	state.timeElapsed = 0;
 	updateTimerDisplay();
 
 	state.timerId = setInterval(() => {
-		state.timeLeft -= 1;
+		state.timeElapsed += 1;
 		updateTimerDisplay();
-		if (state.timeLeft <= 0) {
-			clearTimer();
-			selectAnswer(null);
-		}
 	}, 1000);
 }
 
 function updateTimerDisplay(): void {
 	const timer = $('quiz-timer');
-	timer.textContent = `00:${String(state.timeLeft).padStart(2, '0')}`;
-	timer.classList.toggle('warning', state.timeLeft <= 5);
+	const minutes = Math.floor(state.timeElapsed / 60);
+	const seconds = state.timeElapsed % 60;
+	const text = `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+	if (timer.textContent !== text) {
+		timer.textContent = text;
+	}
 }
 
 function renderQuestion(): void {
@@ -145,11 +151,12 @@ function renderQuestion(): void {
 	const optionsEl = $('quiz-options');
 	optionsEl.innerHTML = '';
 
-	question.options.forEach((option) => {
+	shuffleOptions(question.options).forEach((option) => {
 		const btn = document.createElement('button');
 		btn.type = 'button';
 		btn.className = 'quiz-option';
 		btn.textContent = option.text;
+		btn.dataset.optionId = option.id;
 		btn.addEventListener('click', () => selectAnswer(option.id));
 		optionsEl.appendChild(btn);
 	});
@@ -167,13 +174,13 @@ function selectAnswer(optionId: string | null): void {
 	}
 
 	const options = $('quiz-options').querySelectorAll('.quiz-option');
-	options.forEach((btn, i) => {
-		const opt = question.options[i];
-		if (!opt) return;
+	options.forEach((btn) => {
+		const id = (btn as HTMLButtonElement).dataset.optionId;
+		if (!id) return;
 		(btn as HTMLButtonElement).disabled = true;
-		if (opt.id === question.correctId) {
+		if (id === question.correctId) {
 			btn.classList.add('correct');
-		} else if (opt.id === optionId) {
+		} else if (id === optionId) {
 			btn.classList.add('wrong');
 		}
 	});
@@ -195,7 +202,6 @@ function getScore(): number {
 }
 
 function showThanksForm(): void {
-	preloadScreenImages('thanks');
 	($('register-form') as HTMLFormElement).reset();
 	$('thanks-form-panel').hidden = false;
 	$('thanks-results-panel').hidden = true;
@@ -242,49 +248,86 @@ function resetGame(): void {
 	showScreen('start');
 }
 
-function initBackgroundMusic(): void {
+let disposeGame: (() => void) | null = null;
+
+function initBackgroundMusic(signal: AbortSignal): void {
 	const bgm = document.getElementById('bgm') as HTMLAudioElement | null;
-	if (!bgm) return;
+	const btn = document.getElementById('btn-music-toggle') as HTMLButtonElement | null;
+	if (!bgm || !btn) return;
 
 	bgm.volume = 0.1;
+	let muted = false;
+
+	const updateButton = (): void => {
+		btn.classList.toggle('music-toggle--muted', muted);
+		btn.setAttribute('aria-label', muted ? 'Activar música' : 'Silenciar música');
+		btn.setAttribute('aria-pressed', String(!muted));
+	};
 
 	const startMusic = (): void => {
-		if (bgm.paused) {
+		if (!muted && bgm.paused) {
 			void bgm.play().catch(() => {
 				// Algunos navegadores bloquean autoplay sin interacción previa.
 			});
 		}
 	};
 
-	// Intentar reproducir apenas carga la página (kiosk / políticas permisivas).
+	const toggleMusic = (): void => {
+		muted = !muted;
+		bgm.muted = muted;
+		updateButton();
+
+		if (!muted) {
+			startMusic();
+		}
+	};
+
+	updateButton();
 	startMusic();
 	bgm.addEventListener('canplay', startMusic, { once: true });
 
 	// Respaldo si el navegador exige un gesto del usuario.
 	document.addEventListener('pointerdown', startMusic, { once: true });
 	document.addEventListener('keydown', startMusic, { once: true });
+
+	btn.addEventListener('click', (event) => {
+		event.stopPropagation();
+		toggleMusic();
+	}, { signal });
 }
 
 export function initGame(): void {
+	disposeGame?.();
+	clearTimer();
+
+	const abort = new AbortController();
+	const { signal } = abort;
+	disposeGame = () => abort.abort();
+
 	preloadGameImages();
-	initBackgroundMusic();
+	initBackgroundMusic(signal);
 	renderMapPoints();
 
-	$('btn-start').addEventListener('click', () => {
-		preloadScreenImages('map');
-		showScreen('map');
-	});
+	$('btn-start').addEventListener(
+		'click',
+		() => {
+			showScreen('map');
+		},
+		{ signal },
+	);
 
-	$('btn-test').addEventListener('click', () => {
-		startQuiz();
-	});
+	$('btn-test').addEventListener('click', () => startQuiz(), { signal });
 
-	$('btn-close-detail').addEventListener('click', closePointDetail);
+	$('btn-close-detail').addEventListener('click', closePointDetail, { signal });
 
-	$('detail-overlay').addEventListener('click', (e) => {
-		if (e.target === $('detail-overlay')) closePointDetail();
-	});
+	$('detail-overlay').addEventListener(
+		'click',
+		(e) => {
+			if (e.target === $('detail-overlay')) closePointDetail();
+		},
+		{ signal },
+	);
 
-	$('register-form').addEventListener('submit', handleRegisterSubmit);
-	$('btn-play-again').addEventListener('click', resetGame);
+	$('register-form').addEventListener('submit', handleRegisterSubmit, { signal });
+	$('btn-play-again').addEventListener('click', resetGame, { signal });
 }

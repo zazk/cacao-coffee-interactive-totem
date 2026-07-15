@@ -1,62 +1,111 @@
-import { ALL_GAME_IMAGES, GAME_ASSETS } from './gameAssets';
+import { DOM_IMAGES, JS_PRELOAD_IMAGES } from './gameAssets';
 
-const loaded = new Set<string>();
-const pending = new Map<string, Promise<void>>();
+interface GameImageCache {
+	loaded: Set<string>;
+	pending: Map<string, Promise<void>>;
+}
+
+declare global {
+	interface Window {
+		__gameImageCache?: GameImageCache;
+		__gamePreloadStarted?: boolean;
+	}
+}
+
+function getCache(): GameImageCache {
+	if (!window.__gameImageCache) {
+		window.__gameImageCache = {
+			loaded: new Set<string>(),
+			pending: new Map<string, Promise<void>>(),
+		};
+	}
+	return window.__gameImageCache;
+}
+
+function normalizeSrc(src: string): string {
+	if (src.startsWith('/')) return src;
+	try {
+		return new URL(src, window.location.origin).pathname;
+	} catch {
+		return src;
+	}
+}
+
+/** Marca como cargadas las imágenes que el HTML ya pidió al navegador. */
+function registerDomImages(): void {
+	const { loaded } = getCache();
+
+	document.querySelectorAll('img[src]').forEach((node) => {
+		const img = node as HTMLImageElement;
+		const src = img.getAttribute('src');
+		if (!src) return;
+
+		const normalized = normalizeSrc(src);
+		if (img.complete && img.naturalWidth > 0) {
+			loaded.add(normalized);
+			return;
+		}
+
+		img.addEventListener(
+			'load',
+			() => {
+				loaded.add(normalized);
+			},
+			{ once: true },
+		);
+	});
+}
 
 export function preloadImage(src: string): Promise<void> {
-	if (loaded.has(src)) return Promise.resolve();
+	const normalized = normalizeSrc(src);
+	const { loaded, pending } = getCache();
 
-	const existing = pending.get(src);
+	if (loaded.has(normalized)) return Promise.resolve();
+
+	const existing = pending.get(normalized);
 	if (existing) return existing;
 
 	const promise = new Promise<void>((resolve) => {
 		const img = new Image();
 		img.decoding = 'async';
 		img.onload = () => {
-			loaded.add(src);
-			pending.delete(src);
+			loaded.add(normalized);
+			pending.delete(normalized);
 			resolve();
 		};
 		img.onerror = () => {
-			pending.delete(src);
+			pending.delete(normalized);
 			resolve();
 		};
-		img.src = src;
+		img.src = normalized;
 	});
 
-	pending.set(src, promise);
+	pending.set(normalized, promise);
 	return promise;
 }
 
 function preloadMany(sources: readonly string[]): Promise<void[]> {
-	return Promise.all(sources.map(preloadImage));
+	const unique = [...new Set(sources.map(normalizeSrc))];
+	return Promise.all(unique.map(preloadImage));
 }
 
-/** Precarga todas las imágenes del juego (igual que los 12 fondos del mapa). */
+let preloadStarted = false;
+
+/** Precarga solo imágenes que no están ya en <img> del HTML. */
 export function preloadGameImages(): void {
-	void preloadMany(ALL_GAME_IMAGES);
-}
+	if (window.__gamePreloadStarted || preloadStarted) return;
+	window.__gamePreloadStarted = true;
+	preloadStarted = true;
 
-export function preloadScreenImages(screen: 'map' | 'quiz' | 'thanks'): void {
-	switch (screen) {
-		case 'map':
-			void preloadMany([...GAME_ASSETS.map, ...GAME_ASSETS.mapPoints]);
-			break;
-		case 'quiz':
-			void preloadMany(GAME_ASSETS.quiz);
-			break;
-		case 'thanks':
-			void preloadMany(GAME_ASSETS.thanks);
-			break;
-	}
+	registerDomImages();
+	DOM_IMAGES.forEach((src) => getCache().loaded.add(normalizeSrc(src)));
+	void preloadMany(JS_PRELOAD_IMAGES);
 }
 
 export function isImageReady(src: string): boolean {
-	return loaded.has(src);
+	return getCache().loaded.has(normalizeSrc(src));
 }
 
 export function whenImagesReady(sources: readonly string[]): Promise<void[]> {
 	return preloadMany(sources);
 }
-
-export { ALL_GAME_IMAGES };
