@@ -465,10 +465,10 @@ body {
   margin: 0;
   width: 100%;
   font-family: "Lilita One", cursive;
-  font-size: calc(clamp(1.1rem, 2vw, 1.6rem) - 2pt);
+  font-size: clamp(1.05rem, 2vw, 1.45rem);
   line-height: 1.22;
   color: var(--dark-walnut);
-  text-align: justify;
+  text-align: left;
 }
 
 .detail-card__content--long {
@@ -876,7 +876,7 @@ body {
   }
 
   #detail-text {
-    font-size: calc(3.5rem - 2pt);
+    font-size: clamp(2.5rem, 9vw, 3rem);
     line-height: 1.1;
   }
 
@@ -1093,7 +1093,7 @@ body {
   }
 
   #detail-text {
-    font-size: calc(clamp(1.05rem, 4.5vw, 1.25rem) - 2pt);
+    font-size: clamp(1rem, 5.5vw, 1.1rem);
     line-height: 1.25;
   }
 
@@ -1176,6 +1176,15 @@ body {
 
   .map-point__number {
     font-size: clamp(2rem, 8.5vw, 3.25rem);
+  }
+
+  #detail-text {
+    font-size: clamp(1rem, 5.5vw, 1rem);
+    line-height: 1.25;
+  }
+
+  .detail-card__content--long {
+    padding: 0.75rem 0.5rem;
   }
 
   .map-footer {
