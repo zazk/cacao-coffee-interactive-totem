@@ -255,7 +255,7 @@ function initBackgroundMusic(signal: AbortSignal): void {
 	const btn = document.getElementById('btn-music-toggle') as HTMLButtonElement | null;
 	if (!bgm || !btn) return;
 
-	bgm.volume = 0.1;
+	bgm.volume = 0.5;
 	let muted = false;
 
 	const updateButton = (): void => {
