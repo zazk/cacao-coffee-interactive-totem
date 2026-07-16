@@ -465,14 +465,14 @@ body {
   margin: 0;
   width: 100%;
   font-family: "Lilita One", cursive;
-  font-size: clamp(1.1rem, 2vw, 1.6rem);
+  font-size: calc(clamp(1.1rem, 2vw, 1.6rem) - 2pt);
   line-height: 1.22;
   color: var(--dark-walnut);
   text-align: justify;
 }
 
 .detail-card__content--long {
-  padding: 1rem 3rem;
+  padding: 1rem 2rem;
 }
 
 .detail-card__back {
@@ -876,7 +876,7 @@ body {
   }
 
   #detail-text {
-    font-size: 3.5rem;
+    font-size: calc(3.5rem - 2pt);
     line-height: 1.1;
   }
 
@@ -898,7 +898,7 @@ body {
   }
 
   .detail-card__content--long {
-    padding: 1rem 3rem;
+    padding: 1rem 2rem;
   }
 
   .detail-overlay {
@@ -1089,11 +1089,11 @@ body {
   }
 
   .detail-card__content--long {
-    padding: 0.75rem 1.25rem;
+    padding: 0.75rem 0.75rem;
   }
 
   #detail-text {
-    font-size: clamp(1.05rem, 4.5vw, 1.25rem);
+    font-size: calc(clamp(1.05rem, 4.5vw, 1.25rem) - 2pt);
     line-height: 1.25;
   }
 
