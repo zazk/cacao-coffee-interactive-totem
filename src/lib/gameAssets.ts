@@ -16,7 +16,7 @@ export const DOM_IMAGES = [
  */
 export const JS_PRELOAD_IMAGES = [
 	'/images/camino-mapa.png',
-	'/images/GRACIASS.png',
+	'/images/Gracias.png',
 	...mapPoints.map((point) => point.background),
 ] as const;
 
@@ -32,7 +32,7 @@ export const GAME_ASSETS = {
 		'/images/boton-de-flecha.png',
 	],
 	quiz: ['/images/logo-para-abajo-SAFE-1.png'],
-	thanks: ['/images/GRACIASS.png'],
+	thanks: ['/images/Gracias.png'],
 	mapPoints: mapPoints.map((point) => point.background),
 } as const;
 
